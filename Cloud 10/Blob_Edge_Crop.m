@@ -90,61 +90,9 @@ while z <= length(blobs)
     
     % Crop it out of the original gray scale image.
     thisBlob = imcrop(BW, boundary);
-    numberOfWhite = sum(thisBlob(:));
+    [edgesy, edgesx] = find (thisBlob==1);
+    get_distance([edgesy; edgesx]);
     
-    if numberOfWhite < 80
-        z = z + 1;
-        continue;
-    end
-    
-    imshow(thisBlob);
-%    thisBlob = bwareaopen(thisBlob, 50);
-    thisBlob = imdilate(thisBlob,se10);
-    thisBlob = imresize(thisBlob, [100 NaN], 'Method', 'bicubic') ;
-    thisBlob = imfill(thisBlob,'holes');
-%    thisBlob = bwmorph(thisBlob, 'thin', Inf);
-    thisBlob = bwperim(thisBlob, 8);     
-    
-%     figure;
-%     imshow(thisBlob);
-%     hold on;
-    
-    [H,T,R] = hough(thisBlob);
-    
-    figure;
-    imshow(H,[],'XData',T,'YData',R,...
-                'InitialMagnification','fit');
-    xlabel('\theta'), ylabel('\rho');
-    axis on, axis normal, hold on;
-
-
-    P  = houghpeaks(H,5,'threshold',ceil(.3*max(H(:))));
-    x = T(P(:,2)); y = R(P(:,1));
-    plot(x,y,'s','color','white');
-
-
-    lines = houghlines(thisBlob,T,R,P,'FillGap',20,'MinLength',25);
-    [lines] = removeDuplicates(lines);
-    figure, imshow(thisBlob), hold on
-    max_len = 0;
-    for k = 1:length(lines)
-       xy = [lines(k).point1; lines(k).point2];
-       plot(xy(:,1),xy(:,2),'LineWidth',2,'Color','green');
-
-       % Plot beginnings and ends of lines
-       plot(xy(1,1),xy(1,2),'x','LineWidth',2,'Color','yellow');
-       plot(xy(2,1),xy(2,2),'x','LineWidth',2,'Color','red');
-
-       % Determine the endpoints of the longest line segment
-       len = norm(lines(k).point1 - lines(k).point2);
-       if ( len > max_len)
-          max_len = len;
-          xy_long = xy;
-       end
-    end
-
-    z = z + 1;
-    close all;
 end
                 
 
