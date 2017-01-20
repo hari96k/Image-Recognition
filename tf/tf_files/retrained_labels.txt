@@ -1,0 +1,4 @@
+circles
+quarter circles
+semi circles
+triangles
