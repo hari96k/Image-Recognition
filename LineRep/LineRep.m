@@ -1,8 +1,7 @@
 %LineRep
 %This algorithm can handle:
 %   
-%Notes: Should probably just change the draw lines to horzizontal/vertical
-%lines
+%Notes: 
 %% Image Selection and Processing
 %Import image then convert to grayscale
 I = imread('Rectangle.png');
@@ -29,54 +28,87 @@ figure, imshow(BWoutline), title('outline');
 hold on
 axis on
 %**** # pixels between lines ****
-linegap = 40;
+linegap = 44;
 %--------------------------------
 %Permanent Variables
 imwidth = ImgInfo.Width;
 imheight = ImgInfo.Height;
 %Temp Variables (Need to be restated for next statement)
 w = ImgInfo.Width;
-l = ImgInfo.Height;
-y = 0;
-b = 0;
+h = ImgInfo.Height;
+linex = 1;
+liney = 1;
+IntersectionArray = [];
 %Plot lines
-% This statement draws the positive slope lines
-while l > -imheight
-    plot([0 ,w],[l + imheight, y + imheight])
-    l = l - linegap;
-    y = y - linegap;
-    m = (y - l) / (w - 0);
+% This statement draws the horizontal lines
+while liney < imheight
+    plot([1 ,w],[liney, liney])
     %Store values of coordinates on line where = 1
-    for x = 0:l
-        ycoord = m * x + b;
-    end    
+    for i = 1:w;
+        if BWoutline(liney, i) == 1;
+            IntersectionArray = [IntersectionArray ; [i, liney]];
+        end
+    end 
+    liney = liney + linegap;
     hold on
-    b = b - 5;
 end
-w = ImgInfo.Width;
-l = ImgInfo.Height;
-y = 0;
-b = 0;
-% This statement draws the negative slope lines
-while l < imheight * 3
-    plot([0 ,w],[y - imheight, l - imheight])
-    l = l + linegap;
-    y = y + linegap;
-    m = (y - l) / (w - 0);
-    for x = 0:l
-        ycoord = m * x + b;
-        
-    end    
+% This statement draws the vertical lines
+while linex < imwidth
+    plot([linex ,linex],[1, imheight])
+    %Store values of intersections
+    for j = 1:h;
+        if BWoutline(j, linex) == 1;
+            IntersectionArray = [IntersectionArray ; [linex, j]];
+        end
+    end  
+    linex = linex + linegap;
     hold on
-    b = b - 5;
 end
-%% Find intersections with edges
-%Points that are on the edge = 1
-%New Idea: make lines thicker, erase set all values on a line = 0
-
-
 %% Draw lines that go through 4 or more points
 
+%A = numel(IntersectionArray) / 2;
+% B = 0;
+% while A > 0
+%     B = B + A;
+%     A = A - 1;
+% end
+% C = IntersectionArray;
+% D = 1;
+% E = 1;
+% while D < numel(IntersectionArray) / 2
+%     for D 
+%while B > 0
+%    for
+%    B = B - 1;
+%end
+
+%%Calculate equation for line on each point  
+NumCoordinates = numel(IntersectionArray) / 2;
+A = 1;
+numiter = 2;
+LineEqArray = [];
+while A <= NumCoordinates;
+    x1 = IntersectionArray(A,1);
+    y1 = IntersectionArray(A,2);
+    for alpha = numiter:numcoordinates;
+        x2 = IntersectionArray(alpha,1);
+        y2 = IntersectionArray(alpha,2);
+        m = (y2 - y1)/(x2 - x1);
+        b = y1 - m*x1;
+        for beta = 1:NumCoordinates;
+            pc = 0;
+            if IntersectionArray(beta,2) = m*IntersectionArray + b
+                pc = pc + 1;
+            end
+            if pc = 4;
+                LineEqArray = [LineEqArray ; [m,b]];
+                break
+            end
+        end
+        
+    end 
+    numiter = numiter + 1;
+end 
 %% Handle Exceptions for Circles/Semicircles
 
 %Graph lines in xy coordinate planes
