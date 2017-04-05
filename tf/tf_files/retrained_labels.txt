@@ -1,9 +1,9 @@
+square
 circle
+semi circle
+rectangle
+triangle
 quarter circle
 trapezoid
-semi circle
 crosses
-square
-triangle
 stars
-rectangle
