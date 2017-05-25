@@ -1,84 +1,109 @@
-import tensorflow as tf, sys
-import os
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-import numpy as np
-import warnings
-import time
 import socket
 import threading
+import warnings
+from concurrent.futures import ThreadPoolExecutor
+
+import tensorflow as tf
 from PIL import Image
 
 warnings.filterwarnings("ignore")
 
-directory = ''
-
 # Initializations for tensorflow
 # Loads label file, strips off carriage return
-label_lines = [line.rstrip() for line in tf.gfile.GFile("/tf_files/retrained_labels.txt")]
+label_lines = [line.rstrip() for line in tf.gfile.GFile("retrained_labels.txt")]
 
 # Unpersists graph from file
-with tf.gfile.FastGFile("/tf_files/retrained_graph.pb", 'rb') as f:
+with tf.gfile.FastGFile("retrained_graph.pb", 'rb') as f:
     graph_def = tf.GraphDef()
     graph_def.ParseFromString(f.read())
     _ = tf.import_graph_def(graph_def, name='')
-
 
 sess = tf.Session()
 
 # Feed the image_data as input to the graph and get first prediction
 softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')
 
-class ClientThread(threading.Thread):
 
-    def __init__(self,ip,port):
-        threading.Thread.__init__(self)
-        self.ip = ip
-        self.port = port
-        print ("[+] New thread started for "+ip+":"+str(port))
+# class BlobThread(threading.Thread):
+#     data = ''
+#     directory = ''
+#
+#     def __init__(self, m, di):
+#         threading.Thread.__init__(self)
+#         self.data = m
+#         self.directory = di
+#
+#     def run(self):
+#         m = str(data, "utf-8")
+#         m_split = m.split(' ')
+#         print("Matlab sent : " + m)
+#         command = m_split[0]
+#         print("Command received: " + command)
+#         if command == 'blob':
+#             filename = m_split[1]
+#             # image_path = directory + filename
+#             print("Reading from: " + str(self.directory) + filename)
+#             img = Image.open(self.directory + filename)
+#             cropped_img = img.crop((float(m_split[2]), float(m_split[3]),
+#                                     float(m_split[2]) + float(m_split[4]),
+#                                     float(m_split[3]) + float(m_split[5])))
+#             image_array = cropped_img.convert('RGB')
+#             predictions = sess.run(softmax_tensor, {'DecodeJpeg:0': image_array})
+#
+#             top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
+#
+#             shape = label_lines[top_k[0]]
+#             confidence = predictions[0][top_k[0]]
+#
+#             # text_file = open("shape_output.txt", "w")
+#             result = ("%s with %s confidence" % (shape, confidence)).title()
+#             print('\n\n' + result + '\n' + str(m_split) + '\n')
+#             if confidence > .50 and shape != 'nas':
+#                 cropped_img.save('C:\\Users\\harsha\\Desktop\\UAV\\Image-Recognition\\tf\\tf_files\\outputs\\' + str(
+#                     shape) + '_' + str(confidence) + '.jpg')
+#
+#         # clientsock.send("You sent me : "+ str(data))
+#         else:
+#             pass
+#
+#         print("Blob processed...")
+#         print("Active threads: " + str(threading.active_count()))
 
 
-    def run(self):
-        print ("Connection from : "+ip+":"+str(port))
+def processBlob(data, directory):
+    m = str(data, "utf-8")
+    m_split = m.split(' ')
+    print("Matlab sent : " + m)
+    command = m_split[0]
+    if command == 'blob':
+        filename = m_split[1]
+        # image_path = directory + filename
+        print("Reading from: " + str(directory) + filename)
+        img = Image.open(directory + filename)
+        cropped_img = img.crop((float(m_split[2]), float(m_split[3]),
+                                float(m_split[2]) + float(m_split[4]),
+                                float(m_split[3]) + float(m_split[5])))
+        image_array = cropped_img.convert('RGB')
+        predictions = sess.run(softmax_tensor, {'DecodeJpeg:0': image_array})
 
-        #clientsock.send("\nWelcome to the server\n\n")
+        top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
 
-        data = "dummydata"
+        shape = label_lines[top_k[0]]
+        confidence = predictions[0][top_k[0]]
 
-        while len(data):
-            data = clientsock.recv(200)
-            message = str(data,"utf-8")
-            message_words = message.split(' ')
-            print ("Matlab sent : " + message)
-            command = message_words[0]
-            print ("Command received: " + command)
-            if(command == "dir"):
-                directory = message_words[1]
-                print("New Directory: " + directory)
-            elif(command == 'blob'):
-                filename = message_words[1]
-                #image_path = directory + filename
-                img = Image.open(directory + filename)
-                cropped_img = img.crop((float(message_words[2]), float(message_words[3]), float(message_words[2]) + float(message_words[4]) + 20, float(message_words[3]) + float(message_words[5]) + 20))
-                image_array = cropped_img.convert('RGB')
-                predictions = sess.run(softmax_tensor, {'DecodeJpeg:0': image_array})
+        # text_file = open("shape_output.txt", "w")
+        result = ("%s with %s confidence" % (shape, confidence)).title()
+        print('\n\n' + result + '\n' + str(m_split) + '\n')
+        if confidence > .50 and shape != 'nas':
+            cropped_img.save('C:\\Users\\harsha\\Desktop\\UAV\\Image-Recognition\\tf\\tf_files\\outputs\\' + str(
+                shape) + '_' + str(confidence) + '.jpg')
 
-                top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
+    # clientsock.send("You sent me : "+ str(data))
+    else:
+        pass
 
-                shape = label_lines[top_k[0]]
-                confidence = predictions[0][top_k[0]]
-
-                # text_file = open("shape_output.txt", "w")
-                if (confidence > .80):
-                    result = ("%s with %s confidence" % (shape, confidence)).title()
-                    print('\n\n' + result + '\n')
-
-            #clientsock.send("You sent me : "+ str(data))
-            else:
-                pass
-
-        print ("Client disconnected...")
-
+    print("Blob processed...")
+    print("Active threads: " + str(threading.active_count()))
 
 host = "localhost"
 port = 9999
@@ -86,67 +111,34 @@ port = 9999
 tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 tcpsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-tcpsock.bind((host,port))
-threads = []
+tcpsock.bind((host, port))
 
+executor = ThreadPoolExecutor(max_workers=9)
 
 while True:
-    tcpsock.listen(4)
-    print ("\nListening for incoming connections...")
-    (clientsock, (ip, port)) = tcpsock.accept()
-    newthread = ClientThread(ip, port)
-    newthread.start()
-    threads.append(newthread)
+    tcpsock.listen()
+    print("\nListening for incoming connections...")
+    (clientsock, (ip, port)) = tcpsock.accept()  # Blocking
+    clientsock.settimeout(20)
+    while True:
+        try:
+            data = clientsock.recv(100)
+        except socket.timeout:
+            print("\n\nConnection Reset =/")
+            print("Active threads: " + str(threading.active_count()))
+            break
 
+        message = str(data, "utf-8")
+        message_words = message.split(' ')
 
+        if message_words[0] == "dir":
+            print("\n****************New File******************")
+            print(message)
+            d = message_words[1]
+            iterations = int(message_words[2])
+            for i in range(0, iterations):
+                data = clientsock.recv(100)
+                # newBlob = BlobThread(data, d)
+                # newBlob.start()
 
-# for filename in os.listdir(directory):
-#
-#     if filename.endswith(".jpg"):
-#         count += 1
-#
-#         image_path = (directory + filename)
-#
-#         # Read in the image_data
-#         image_data = tf.gfile.FastGFile(image_path, 'rb').read()
-#
-#         #with tf.Session() as sess:
-#
-#         predictions = sess.run(softmax_tensor, {'DecodeJpeg/contents:0': image_data})
-#
-#         # Sort to show labels of first prediction in order of confidence
-#         top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
-#
-#         shape = label_lines[top_k[0]]
-#         confidence = predictions[0][top_k[0]]
-#
-#             # for node_id in top_k:
-#             #     human_string = label_lines[node_id]
-#             #     score = predictions[0][node_id]
-#             #     print('%s (score = %.5f)' % (human_string, score))
-#             #     if node_id == top_k[0]:
-#             #         shape = human_string
-#             #         confidence = score
-#
-#
-#
-#
-#         #text_file = open("shape_output.txt", "w")
-#         if(confidence > .80):
-#             result = ("%s with %s confidence" % (shape, confidence)).title()
-#             print ('\n\n' + result)
-            # image = mpimg.imread(image_path)
-            # plt.imshow(image)
-            # plt.title(result)
-            # plt.show()
-#text_file.write(result)
-
-# t1 = time.clock()
-#
-# totalTime = t1 - t0
-# print (totalTime)
-# print("Total Images Processed: " + str(count))
-# print("Average Time: " + str(totalTime/count))
-# k = cv2.waitKey(0) & 0xFF
-# if k == 27:
-#    cv2.destroyAllWindows()
+                executor.submit(processBlob, data, d)

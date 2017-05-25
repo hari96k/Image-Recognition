@@ -1,9 +1,4 @@
 square
 circle
-semi circle
-rectangle
+nas
 triangle
-quarter circle
-trapezoid
-crosses
-stars

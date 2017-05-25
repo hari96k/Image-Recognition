@@ -1,10 +1,6 @@
 %% Start Python Script and TCP Socket
 %py.scratch.get_targets(strcat(pwd, '/testImages/'))
 
-t = tcpip('localhost', 9999);
-fopen(t);
-serverdata = strcat("dir ", pwd, '/testImages/');
-fwrite(t, serverdata);
 %fscanf(t)
 %fclose(t);
 
@@ -22,8 +18,9 @@ fwrite(t, serverdata);
 
 %% IMAGE SELECTION
 
-imagename = 'test17.jpg';
-imagedir = strcat('testImages/', imagename);
+imagename = 'image-049.jpg';
+%imagedir = strcat('testImages/', imagename);
+imagedir = strcat('C:\Users\harsha\Desktop\UAV\Image-Recognition\Cloud10\images2\', imagename);
 
 img = imread(imagedir);
 
@@ -33,23 +30,23 @@ img = imread(imagedir);
 % Standard for all images(no initial crop)
 
 % Best/Optimal Pre-Processing
-filter = .18;
-interEdges = coloredges(img);
-interEdges = interEdges / max(interEdges(:));
-                                                                                                                                                                                                                                                                                                                    
-% Special Crop to fix ffmpeg capture
-topCut = 10;
-bottomCut = 12;
-leftCut = 10;
-rightCut = 10;
-[height, width] = size(interEdges);
+% filter = .18;
+% interEdges = coloredges(img);
+% interEdges = interEdges / max(interEdges(:));
+%                                                                                                                                                                                                                                                                                                                     
+% % Special Crop to fix ffmpeg capture
+% topCut = 10;
+% bottomCut = 12;
+% leftCut = 10;
+% rightCut = 10;
+% [height, width] = size(interEdges);
 
- interEdges = imcrop(interEdges,[leftCut topCut width-leftCut-rightCut height-bottomCut-topCut] );
- img = imcrop(img,[leftCut topCut width-leftCut-rightCut height-bottomCut-topCut] );
+%  interEdges = imcrop(interEdges,[leftCut topCut width-leftCut-rightCut height-bottomCut-topCut] );
+%  img = imcrop(img,[leftCut topCut width-leftCut-rightCut height-bottomCut-topCut] );
 imgGray = rgb2gray(img);
 
-BWimgMask = edge(interEdges,'canny', .3);
-%BWimg = edge(imgGray,'canny', .4);
+%BWimgMask = edge(interEdges,'canny', .3);
+BWimgMask = edge(imgGray,'canny', .3);
 
 % Used to fill small holes/discontinuities
 se10 = strel('square', 10);
@@ -61,6 +58,20 @@ thisImageThick = imdilate(BWimgMask,se5);
 
 blobs = regionprops(thisImageThick, 'BoundingBox');
 
+noiseLVL = 1;
+while length(blobs) > 10
+    thisImageThick = bwareaopen(thisImageThick, 20*noiseLVL);
+    noiseLVL = noiseLVL + 1;
+    blobs = regionprops(thisImageThick, 'BoundingBox');
+end
+
+stdMessageLength = 100;
+t = tcpip('localhost', 9999);
+fopen(t);
+serverdata = strcat("dir ", pwd, "/testImages/ ", string(length(blobs)));
+fwrite(t, stdMessage(serverdata, stdMessageLength));
+fprintf("Connected to Vados\n");
+
 z = 1;
 
 %% LOOPING THROUGH BLOBS
@@ -69,8 +80,17 @@ while z <= length(blobs)
     
     % Crop it out of the original gray scale image.
     % thisBlob = imcrop(BWimg, boundary + [-3 -3 6 6]);
-    thisBlob = imcrop(img, boundary + [-3 -3 6 6]);
+    boundary = boundary + [-3 -3 6 6];
+    thisBlob = imcrop(img, boundary);
     
+    z = z + 1;
+    
+    imshow(thisBlob)
+
+    if max(size(thisBlob)) <= 15 || max(size(thisBlob) >= 1000)
+        fwrite(t, "ignore");
+        continue;
+    end
     
 %     if numberOfWhite < 80
 %         z = z + 1;
@@ -81,13 +101,12 @@ while z <= length(blobs)
     %imshow(thisBlob);
 %     thisBlob = bwareaopen(thisBlob, 50);
     %thisBlob = imdilate(thisBlob,se2);
-        
-    z = z + 1;
-    
+            
     strBoundary = string(boundary);
     serverdata = strcat("blob ", imagename, " ", strBoundary(1), " ", strBoundary(2), " ", strBoundary(3), " ", strBoundary(4));
-    fwrite(t, serverdata);
+    fwrite(t, stdMessage(serverdata, stdMessageLength));
     
+%     close all
     fprintf('Processed a blob\n')
 %     shape = py.pyZeno.get_targets(imagedir, boundary);
 %     
