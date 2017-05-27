@@ -2,7 +2,7 @@ function [ result ] = backdrop( img )
 %img = imread('C:\Users\harsha\Desktop\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw\Square\square (5).jpg');
 img = im2uint8(img);
 dim = size(img);
-new_dim = (randi([5 25],1,1)/100) * [max(dim(1), dim(2)) max(dim(1), dim(2))];
+new_dim = (randi([2 5],1,1)/100) * [max(dim(1), dim(2)) max(dim(1), dim(2))];
 img = padarray(img, ceil(new_dim), 255);
 
 files = dir('backgrounds/*.png');

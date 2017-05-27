@@ -15,7 +15,7 @@
 %     fscanf(udp2)
 % end
 
-files = dir('C:\Users\harsha\Desktop\UAV\Image-Recognition\Cloud10\images3\*.jpg');
+files = dir('C:\Users\Hari\Documents\UAV\Image-Recognition\Cloud10\images3\*.jpg');
 
 %% IMAGE SELECTION
 stdMessageLength = 100;
@@ -84,7 +84,7 @@ for file = files'
         
         % Crop it out of the original gray scale image.
         % thisBlob = imcrop(BWimg, boundary + [-3 -3 6 6]);
-        boundary = boundary + [-3 -3 6 6];
+        boundary = boundary + [-15 -15 30 30];
         thisBlob = imcrop(img, boundary);
         
         z = z + 1;

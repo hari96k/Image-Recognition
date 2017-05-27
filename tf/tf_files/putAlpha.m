@@ -7,7 +7,7 @@ n = randi([1 length(files)],1,1);
 alphanumeric = imread(char(strcat('alphanumerics/alphanumeric', " (", string(n),').jpg')));
 
 dim = size(alphanumeric);
-new_dim = (randi([0 5],1,1)/100) * [max(dim(1), dim(2)) max(dim(1), dim(2))];
+new_dim = (randi([0 0],1,1)/100) * [max(dim(1), dim(2)) max(dim(1), dim(2))];
 alphanumeric = padarray(alphanumeric, ceil(new_dim), 255);
 
 

@@ -1,11 +1,11 @@
-%img = imread('C:\Users\harsha\Desktop\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Triangle\triangle (16).jpg');
-%img = imread('C:\Users\harsha\Desktop\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Square\square (51).jpg');
-%img = imread('C:\Users\harsha\Desktop\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Circle\circle (20).jpg');
-img = imread('C:\Users\harsha\Desktop\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Rectangle\rectangle (536).jpg');
-%img = imread('C:\Users\harsha\Desktop\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Semi Circle\semi circle (120).jpg');
+%img = imread('C:\Users\Hari\Documents\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Triangle\triangle (16).jpg');
+%img = imread('C:\Users\Hari\Documents\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Square\square (51).jpg');
+img = imread('C:\Users\Hari\Documents\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Circle\circle (20).jpg');
+%img = imread('C:\Users\Hari\Documents\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Rectangle\rectangle (536).jpg');
+%img = imread('C:\Users\Hari\Documents\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Semi Circle\semi circle (120).jpg');
 
 
-shapes = 'Rectangle';
+shapes = 'Circle';
 
 numNewImages = 1000;
 %alphanumeric = true;
@@ -38,7 +38,7 @@ for i=1:numNewImages
     newImg = hsv2rgb(transformed);
     
     
-    %newImg = putAlpha(newImg);
+    newImg = putAlpha(newImg);
     
     newImg = imresize(newImg, [randi([50 300],1,1) NaN]);
     

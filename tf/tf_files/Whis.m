@@ -20,7 +20,7 @@
 
 imagename = 'image-049.jpg';
 %imagedir = strcat('testImages/', imagename);
-imagedir = strcat('C:\Users\harsha\Desktop\UAV\Image-Recognition\Cloud10\images2\', imagename);
+imagedir = strcat('C:\Users\Hari\Documents\UAV\Image-Recognition\Cloud10\images2\', imagename);
 
 img = imread(imagedir);
 
@@ -80,7 +80,7 @@ while z <= length(blobs)
     
     % Crop it out of the original gray scale image.
     % thisBlob = imcrop(BWimg, boundary + [-3 -3 6 6]);
-    boundary = boundary + [-3 -3 6 6];
+    boundary = boundary + [-10 -10 20 20];
     thisBlob = imcrop(img, boundary);
     
     z = z + 1;
