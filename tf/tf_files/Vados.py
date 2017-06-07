@@ -59,7 +59,7 @@ softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')
 #             result = ("%s with %s confidence" % (shape, confidence)).title()
 #             print('\n\n' + result + '\n' + str(m_split) + '\n')
 #             if confidence > .50 and shape != 'nas':
-#                 cropped_img.save('C:\\Users\\harsha\\Desktop\\UAV\\Image-Recognition\\tf\\tf_files\\outputs\\' + str(
+#                 cropped_img.save('C:\\Users\\hari\\Documents\\UAV\\Image-Recognition\\tf\\tf_files\\outputs\\' + str(
 #                     shape) + '_' + str(confidence) + '.jpg')
 #
 #         # clientsock.send("You sent me : "+ str(data))
@@ -94,16 +94,19 @@ def processBlob(data, directory):
         # text_file = open("shape_output.txt", "w")
         result = ("%s with %s confidence" % (shape, confidence)).title()
         print('\n\n' + result + '\n' + str(m_split) + '\n')
-        if confidence > .50 and shape != 'nas':
+        if confidence > .85 and shape != 'nas':
             cropped_img.save('C:\\Users\\Hari\\Documents\\UAV\\Image-Recognition\\tf\\tf_files\\outputs\\' + str(
                 shape) + '_' + str(confidence) + '.jpg')
+            # FOR BRADLEY: shape contains the shape for now, fixing the alpha numeric model still
 
     # clientsock.send("You sent me : "+ str(data))
     else:
         pass
 
     print("Blob processed...")
-    print("Active threads: " + str(threading.active_count()))
+
+
+
 
 host = "localhost"
 port = 9999
@@ -140,5 +143,5 @@ while True:
                 data = clientsock.recv(100)
                 # newBlob = BlobThread(data, d)
                 # newBlob.start()
-
-                executor.submit(processBlob, data, d)
+                # executor.submit(processBlob, data, d)
+                processBlob(data, d)

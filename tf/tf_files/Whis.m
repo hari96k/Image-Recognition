@@ -7,10 +7,10 @@
 % udp1 = udp('localhost', 9995);
 % fopen(udp1);
 % fprintf(udp1, 'Sending from Matlab');
-% 
+%
 % udp2 = udp('localhost', 10005);
 % fopen(udp2);
-% 
+%
 % while(true)
 %     fscanf(udp2)
 % end
@@ -18,9 +18,11 @@
 
 %% IMAGE SELECTION
 
-imagename = 'image-049.jpg';
+%imagename = 'image-210.jpg';
 %imagedir = strcat('testImages/', imagename);
-imagedir = strcat('C:\Users\Hari\Documents\UAV\Image-Recognition\Cloud10\images2\', imagename);
+%imagedir = strcat('C:\Users\Hari\Documents\UAV\Image-Recognition\Cloud10\images_final\', imagename);
+
+imagedir = urlread('*******FOR BRADLEY: UNPROCESSED IMAGES URL*******');
 
 img = imread(imagedir);
 
@@ -33,7 +35,7 @@ img = imread(imagedir);
 % filter = .18;
 % interEdges = coloredges(img);
 % interEdges = interEdges / max(interEdges(:));
-%                                                                                                                                                                                                                                                                                                                     
+%
 % % Special Crop to fix ffmpeg capture
 % topCut = 10;
 % bottomCut = 12;
@@ -45,8 +47,10 @@ img = imread(imagedir);
 %  img = imcrop(img,[leftCut topCut width-leftCut-rightCut height-bottomCut-topCut] );
 imgGray = rgb2gray(img);
 
+initThresh = .3;
+
 %BWimgMask = edge(interEdges,'canny', .3);
-BWimgMask = edge(imgGray,'canny', .3);
+BWimgMask = edge(imgGray,'canny', initThresh);
 
 % Used to fill small holes/discontinuities
 se10 = strel('square', 10);
@@ -58,12 +62,20 @@ thisImageThick = imdilate(BWimgMask,se5);
 
 blobs = regionprops(thisImageThick, 'BoundingBox');
 
-noiseLVL = 1;
+strongThresh = initThresh + .1;
 while length(blobs) > 10
-    thisImageThick = bwareaopen(thisImageThick, 20*noiseLVL);
-    noiseLVL = noiseLVL + 1;
+    BWimgMask = edge(imgGray,'canny', strongThresh);
+    thisImageThick = imdilate(BWimgMask,se5);
     blobs = regionprops(thisImageThick, 'BoundingBox');
+    strongThresh = strongThresh + .1;
 end
+
+% noiseLVL = 1;
+% while length(blobs) > 5
+%     thisImageThick = bwareaopen(thisImageThick, 20*noiseLVL);
+%     noiseLVL = noiseLVL + 1;
+%     blobs = regionprops(thisImageThick, 'BoundingBox');
+% end
 
 stdMessageLength = 100;
 t = tcpip('localhost', 9999);
@@ -80,45 +92,47 @@ while z <= length(blobs)
     
     % Crop it out of the original gray scale image.
     % thisBlob = imcrop(BWimg, boundary + [-3 -3 6 6]);
-    boundary = boundary + [-10 -10 20 20];
+    boundary = boundary + [-5 -5 10 10];
     thisBlob = imcrop(img, boundary);
     
     z = z + 1;
     
+    figure
+    hold on
     imshow(thisBlob)
-
-    if max(size(thisBlob)) <= 15 || max(size(thisBlob) >= 1000)
+    
+    if max(size(thisBlob) >= 1000)
         fwrite(t, "ignore");
         continue;
     end
     
-%     if numberOfWhite < 80
-%         z = z + 1;
-%         continue;
-%     end
+    %     if numberOfWhite < 80
+    %         z = z + 1;
+    %         continue;
+    %     end
     
-%    [height, width] = size(thisBlob);
+    %    [height, width] = size(thisBlob);
     %imshow(thisBlob);
-%     thisBlob = bwareaopen(thisBlob, 50);
+    %     thisBlob = bwareaopen(thisBlob, 50);
     %thisBlob = imdilate(thisBlob,se2);
-            
+    
     strBoundary = string(boundary);
     serverdata = strcat("blob ", imagename, " ", strBoundary(1), " ", strBoundary(2), " ", strBoundary(3), " ", strBoundary(4));
     fwrite(t, stdMessage(serverdata, stdMessageLength));
     
-%     close all
+    %     close all
     fprintf('Processed a blob\n')
-%     shape = py.pyZeno.get_targets(imagedir, boundary);
-%     
-%     
-%     shape = char(shape);
-%     figure
-%     imshow(thisBlob)
-%     if(strcmp(shape, 'Unknown'))
-%         close;
-%     else
-%         title(shape);
-%     end
+    %     shape = py.pyZeno.get_targets(imagedir, boundary);
+    %
+    %
+    %     shape = char(shape);
+    %     figure
+    %     imshow(thisBlob)
+    %     if(strcmp(shape, 'Unknown'))
+    %         close;
+    %     else
+    %         title(shape);
+    %     end
     
 end
 

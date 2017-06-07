@@ -62,12 +62,12 @@ for file = files'
     
     blobs = regionprops(thisImageThick, 'BoundingBox');
     
-    strongThresh = initThresh + .05;
-    while length(blobs) > 5
+    strongThresh = initThresh + .1;
+    while length(blobs) > 10
         BWimgMask = edge(imgGray,'canny', strongThresh);
         thisImageThick = imdilate(BWimgMask,se5);
         blobs = regionprops(thisImageThick, 'BoundingBox');
-        strongThresh = strongThresh + .05;
+        strongThresh = strongThresh + .1;
     end
     
     if ~isempty(blobs)
@@ -84,7 +84,7 @@ for file = files'
         
         % Crop it out of the original gray scale image.
         % thisBlob = imcrop(BWimg, boundary + [-3 -3 6 6]);
-        boundary = boundary + [-15 -15 30 30];
+        boundary = boundary + [-10 -10 20 20];
         thisBlob = imcrop(img, boundary);
         
         z = z + 1;

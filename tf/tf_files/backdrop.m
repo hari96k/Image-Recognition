@@ -1,9 +1,15 @@
 function [ result ] = backdrop( img )
+offcenter = true;
 %img = imread('C:\Users\harsha\Desktop\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw\Square\square (5).jpg');
 img = im2uint8(img);
 dim = size(img);
 new_dim = (randi([2 5],1,1)/100) * [max(dim(1), dim(2)) max(dim(1), dim(2))];
-img = padarray(img, ceil(new_dim), 255);
+%img = padarray(img, ceil(new_dim), 255);
+
+if offcenter
+    img = padarray(img, [ceil((randi([0 5],1,1)/100)*(dim(1))) ceil((randi([0 5],1,1)/100)*(dim(1)))], 255, 'pre');
+    img = padarray(img, [ceil((randi([0 5],1,1)/100)*(dim(1))) ceil((randi([0 5],1,1)/100)*(dim(1)))], 255, 'post');
+end
 
 files = dir('backgrounds/*.png');
 n = randi([1 length(files)],1,1);

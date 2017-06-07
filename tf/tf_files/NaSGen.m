@@ -1,5 +1,5 @@
-files = dir('C:\Users\harsha\Desktop\UAV\Image-Recognition\Cloud 10\Images_Final\*.jpg');
-outputLoc = 'C:\Users\harsha\Desktop\UAV\Image-Recognition\tf\tf_files\NaS\';
+files = dir('C:\Users\Hari\Documents\UAV\Image-Recognition\Cloud10\images3\*.jpg');
+outputLoc = 'C:\Users\Hari\Documents\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw\NaS\';
 outputDir = dir(strcat(outputLoc, '*.jpg'));
 
 count = length(outputDir) + 1;
@@ -11,7 +11,7 @@ for file = files'
     imgGray = rgb2gray(img);
 
     %BWimgMask = edge(interEdges,'canny', .3);
-    BWimgMask = edge(imgGray,'canny', .5);
+    BWimgMask = edge(imgGray,'canny', .3);
 
     se5 = strel('square', 5);
 

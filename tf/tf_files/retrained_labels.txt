@@ -1,6 +1,6 @@
+triangle
+circle
 semi circle
+rectangle
 square
 nas
-circle
-rectangle
-triangle
