@@ -18,13 +18,19 @@
 
 %% IMAGE SELECTION
 
-%imagename = 'image-210.jpg';
-%imagedir = strcat('testImages/', imagename);
-%imagedir = strcat('C:\Users\Hari\Documents\UAV\Image-Recognition\Cloud10\images_final\', imagename);
+% imagename = 'image-210.jpg';
+% imagedir = strcat('C:\Users\Hari\Documents\UAV\Image-Recognition\Cloud10\images_final\', imagename);
+% img = imread(imagedir);
 
-imagedir = urlread('*******FOR BRADLEY: UNPROCESSED IMAGES URL*******');
 
-img = imread(imagedir);
+serverMsg = urlread('http://127.0.0.1:25005/api/images?unprocessed=true&limit=1&min_alt=20');
+struct = loadjson(serverMsg);
+encoded = java.lang.String(struct.data_warped);
+javaaddpath(pwd);
+import decoder.*
+decoder.decodeAndSave(encoded);
+
+img = imread('yolo.jpg');
 
 % Use mode 0 and writeEnable 1 for competition =)
 

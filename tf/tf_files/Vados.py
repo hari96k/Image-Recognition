@@ -94,6 +94,7 @@ def processBlob(data, directory):
         # text_file = open("shape_output.txt", "w")
         result = ("%s with %s confidence" % (shape, confidence)).title()
         print('\n\n' + result + '\n' + str(m_split) + '\n')
+        # Default is .85
         if confidence > .85 and shape != 'nas':
             cropped_img.save('C:\\Users\\Hari\\Documents\\UAV\\Image-Recognition\\tf\\tf_files\\outputs\\' + str(
                 shape) + '_' + str(confidence) + '.jpg')
