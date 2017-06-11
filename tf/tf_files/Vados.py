@@ -1,10 +1,18 @@
 import socket
 import threading
 import warnings
-from concurrent.futures import ThreadPoolExecutor
-
+import pytesseract
 import tensorflow as tf
+import webcolors
+import struct
+import scipy
+import scipy.misc
+import scipy.cluster
+
 from PIL import Image
+
+pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files (x86)/Tesseract-OCR/tesseract'
+n_colors = 2
 
 warnings.filterwarnings("ignore")
 
@@ -69,6 +77,24 @@ softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')
 #         print("Blob processed...")
 #         print("Active threads: " + str(threading.active_count()))
 
+def closest_colour(requested_colour):
+    min_colours = {}
+    for key, name in webcolors.css21_hex_to_names.items():
+        r_c, g_c, b_c = webcolors.hex_to_rgb(key)
+        rd = (r_c - requested_colour[0]) ** 2
+        gd = (g_c - requested_colour[1]) ** 2
+        bd = (b_c - requested_colour[2]) ** 2
+        min_colours[(rd + gd + bd)] = name
+    return min_colours[min(min_colours.keys())]
+
+
+def get_colour_name(requested_colour):
+    try:
+        closest_name = webcolors.rgb_to_name(requested_colour)
+    except ValueError:
+        closest_name = closest_colour(requested_colour)
+    return str(closest_name)
+
 
 def processBlob(data, directory):
     m = str(data, "utf-8")
@@ -96,17 +122,30 @@ def processBlob(data, directory):
         print('\n\n' + result + '\n' + str(m_split) + '\n')
         # Default is .85
         if confidence > .85 and shape != 'nas':
+            # cropped_img.show()
+
+            #### Alphanumeric detection
+            char = pytesseract.image_to_string(cropped_img, config='-psm 10')
+            if not char.isalnum():
+                char = 'NaC'
+
+            #### Color detection
+
+            ar = scipy.misc.fromimage(cropped_img)
+            dim = ar.shape
+            ar = ar.reshape(scipy.product(dim[:2]), dim[2])
+            codes, dist = scipy.cluster.vq.kmeans(ar.astype(float), n_colors)
+            primary = get_colour_name(codes[0].astype(int))
+            secondary = get_colour_name(codes[1].astype(int))
+
             cropped_img.save('C:\\Users\\Hari\\Documents\\UAV\\Image-Recognition\\tf\\tf_files\\outputs\\' + str(
-                shape) + '_' + str(confidence) + '.jpg')
-            # FOR BRADLEY: shape contains the shape for now, fixing the alpha numeric model still
+                shape) + '_' + char + '_' + primary + '_' + secondary + '_' + str(confidence) + '.jpg')
 
     # clientsock.send("You sent me : "+ str(data))
     else:
         pass
 
     print("Blob processed...")
-
-
 
 
 host = "localhost"
@@ -116,8 +155,6 @@ tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 tcpsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 tcpsock.bind((host, port))
-
-executor = ThreadPoolExecutor(max_workers=9)
 
 while True:
     tcpsock.listen()
