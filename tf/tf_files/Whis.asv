@@ -11,28 +11,19 @@ stdMessageLength = 100;
 
 prevId = 0;
 
-javaaddpath(pwd);
-import decoder.*
-
 %% Main Loop
 while true
     try
-        serverMsg = urlread('http://192.168.0.13:25005/api/images?processed=false', 'Timeout', 2);
-        struct = loadjson(serverMsg);
+        serverMsg = urlread('http://172.20.0.11:25005/api/images?processed=false', 'Timeout', 2);
+                struct = loadjson(serverMsg);
         struct = struct{1,1};
     catch
-        fprintf("Waiting for unproccesed images! " + string(prevId) + " Processed So Far\n");
-        pause(1);
+        fprintf('Waiting for unproccesed images!\n');
         continue;
     end
-    %% After message is read
-    if struct.x0x5F_id <= prevId
-        fprintf("Waiting for unproccesed images! " + string(prevId) + " Processed So Far\n");
-        pause(1);
-        continue;
-    end
-    prevId = struct.x0x5F_id;
     encoded = java.lang.String(struct.data_warped);
+    javaaddpath(pwd);
+    import decoder.*
     fname = pwd + "/inter/temp" + struct.x0x5F_id + ".jpg";
     decoder.decodeAndSave(encoded, fname);
     
@@ -89,7 +80,7 @@ while true
     %     blobs = regionprops(thisImageThick, 'BoundingBox');
     % end
     
-    serverdata = "dir " + pwd + "/inter/" + " " + string(length(blobs) + " " + string(struct.x0x5F_id) + " " + string(struct.lat) + " " + string(struct.lon));
+    serverdata = "dir " + pwd + "/inter/" + " " + string(length(blobs));
     fwrite(t, stdMessage(serverdata, stdMessageLength));
     fprintf("Connected to Vados\n");
     
@@ -101,7 +92,7 @@ while true
         
         % Crop it out of the original gray scale image.
         % thisBlob = imcrop(BWimg, boundary + [-3 -3 6 6]);
-        boundary = boundary + [-10 -10 20 20];
+        boundary = boundary + [-5 -5 10 10];
         thisBlob = imcrop(img, boundary);
         
         z = z + 1;
