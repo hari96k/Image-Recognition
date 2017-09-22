@@ -7,8 +7,8 @@ new_dim = (randi([2 5],1,1)/100) * [max(dim(1), dim(2)) max(dim(1), dim(2))];
 %img = padarray(img, ceil(new_dim), 255);
 
 if offcenter
-    img = padarray(img, [ceil((randi([0 5],1,1)/100)*(dim(1))) ceil((randi([0 5],1,1)/100)*(dim(1)))], 255, 'pre');
-    img = padarray(img, [ceil((randi([0 5],1,1)/100)*(dim(1))) ceil((randi([0 5],1,1)/100)*(dim(1)))], 255, 'post');
+    img = padarray(img, [ceil((randi([0 4],1,1)/100)*(dim(1))) ceil((randi([0 4],1,1)/100)*(dim(1)))], 255, 'pre');
+    img = padarray(img, [ceil((randi([0 4],1,1)/100)*(dim(1))) ceil((randi([0 4],1,1)/100)*(dim(1)))], 255, 'post');
 end
 
 files = dir('backgrounds/*.png');

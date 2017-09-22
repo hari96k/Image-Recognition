@@ -10,6 +10,14 @@ dim = size(alphanumeric);
 new_dim = (randi([0 0],1,1)/100) * [max(dim(1), dim(2)) max(dim(1), dim(2))];
 alphanumeric = padarray(alphanumeric, ceil(new_dim), 255);
 
+angle = randi([1 359],1,1);
+darkImg = imrotate(alphanumeric, angle);
+
+%Sets border to be white
+tempImg = ~imrotate(true(size(alphanumeric)), angle);
+darkImg(tempImg&~imclearborder(tempImg)) = 255;
+
+alphanumeric = darkImg;
 
 M = double(any(alphanumeric < 100,3));
 redChannel = alphanumeric(:, :, 1);

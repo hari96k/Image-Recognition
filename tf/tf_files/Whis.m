@@ -4,12 +4,10 @@
 % imagedir = strcat('C:\Users\Hari\Documents\UAV\Image-Recognition\Cloud10\images_final\', imagename);
 % img = imread(imagedir);
 
-t = tcpip('localhost', 9999);
-fopen(t);
+prevId = 0;
+
 
 stdMessageLength = 100;
-
-prevId = 0;
 
 javaaddpath(pwd);
 import decoder.*
@@ -17,7 +15,7 @@ import decoder.*
 %% Main Loop
 while true
     try
-        serverMsg = urlread('http://192.168.0.13:25005/api/images?processed=false', 'Timeout', 2);
+        serverMsg = urlread('http://192.168.0.13:25005/api/images?processed=false&limit=1', 'Timeout', .5);
         struct = loadjson(serverMsg);
         struct = struct{1,1};
     catch
@@ -26,37 +24,34 @@ while true
         continue;
     end
     %% After message is read
-    if struct.x0x5F_id <= prevId
+    if struct.x0x5F_id == prevId
         fprintf("Waiting for unproccesed images! " + string(prevId) + " Processed So Far\n");
         pause(1);
         continue;
     end
+    try
+    t = tcpip('localhost', 9999);
+    fopen(t);
+    
+    prevId = 0;
+    catch
+        continue
+    end
+
+    
     prevId = struct.x0x5F_id;
     encoded = java.lang.String(struct.data_warped);
     fname = pwd + "/inter/temp" + struct.x0x5F_id + ".jpg";
     decoder.decodeAndSave(encoded, fname);
     
     img = imread(char(fname));
-    
-    % Use mode 0 and writeEnable 1 for competition =)
+    %% Debugging
+%     img = imread('C:\Users\Hari\Documents\UAV\Image-Recognition\tf\tf_files\inter\temp1.jpg');
+%     struct.lat = 1;
+%     struct.lon = 1;
+%     struct.x0x5F_id = 1;
     
     %% PRE-IMAGE PROCESSING
-    % Standard for all images(no initial crop)
-    
-    % Best/Optimal Pre-Processing
-    % filter = .18;
-    % interEdges = coloredges(img);
-    % interEdges = interEdges / max(interEdges(:));
-    %
-    % % Special Crop to fix ffmpeg capture
-    % topCut = 10;
-    % bottomCut = 12;
-    % leftCut = 10;
-    % rightCut = 10;
-    % [height, width] = size(interEdges);
-    
-    %  interEdges = imcrop(interEdges,[leftCut topCut width-leftCut-rightCut height-bottomCut-topCut] );
-    %  img = imcrop(img,[leftCut topCut width-leftCut-rightCut height-bottomCut-topCut] );
     imgGray = rgb2gray(img);
     
     initThresh = .3;

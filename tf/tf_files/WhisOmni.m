@@ -15,12 +15,12 @@
 %     fscanf(udp2)
 % end
 
-files = dir('C:\Users\Hari\Documents\UAV\Image-Recognition\Cloud10\images3\*.jpg');
+files = dir('C:\Users\Hari\Documents\UAV\Image-Recognition\Cloud10\images2\*.jpg');
 
 %% IMAGE SELECTION
-stdMessageLength = 100;
-t = tcpip('localhost', 9999);
-fopen(t);
+% stdMessageLength = 100;
+% t = tcpip('localhost', 9999);
+% fopen(t);
 
 for file = files'
     
@@ -48,7 +48,7 @@ for file = files'
     %  img = imcrop(img,[leftCut topCut width-leftCut-rightCut height-bottomCut-topCut] );
     imgGray = rgb2gray(img);
     
-    initThresh = .3;
+    initThresh = .1;
     %BWimgMask = edge(interEdges,'canny', .3);
     BWimgMask = edge(imgGray,'canny', initThresh);
     
@@ -69,12 +69,12 @@ for file = files'
         blobs = regionprops(thisImageThick, 'BoundingBox');
         strongThresh = strongThresh + .1;
     end
-    
-    if ~isempty(blobs)
-        serverdata = strcat("dir ", file.folder, "/ ", string(length(blobs)));
-        fwrite(t, stdMessage(serverdata, stdMessageLength));
-        fprintf("*******Sending Next File************\n");
-    end
+        
+%     if ~isempty(blobs)
+%         serverdata = strcat("dir ", file.folder, "/ ", string(length(blobs)), " 1 0 0");
+%         fwrite(t, stdMessage(serverdata, stdMessageLength));
+%         fprintf("*******Sending Next File************\n");
+%     end
     
     z = 1;
     
@@ -92,7 +92,7 @@ for file = files'
         %imshow(thisBlob)
         
         if max(size(thisBlob)) <= 15 || max(size(thisBlob) >= 1000)
-            fwrite(t, stdMessage("ignore", stdMessageLength));
+            %fwrite(t, stdMessage("ignore", stdMessageLength));
             continue;
         end
         
@@ -108,7 +108,7 @@ for file = files'
         
         strBoundary = string(boundary);
         serverdata = strcat("blob ", file.name, " ", strBoundary(1), " ", strBoundary(2), " ", strBoundary(3), " ", strBoundary(4));
-        fwrite(t, stdMessage(serverdata, stdMessageLength));
+        %fwrite(t, stdMessage(serverdata, stdMessageLength));
         
         %     close all
         fprintf('Processed a blob\n')

@@ -1,13 +1,15 @@
-img = imread('C:\Users\Hari\Documents\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Triangle\triangle (16).jpg');
+%img = imread('C:\Users\Hari\Documents\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Triangle\triangle (16).jpg');
 %img = imread('C:\Users\Hari\Documents\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Square\square (51).jpg');
 %img = imread('C:\Users\Hari\Documents\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Circle\circle (20).jpg');
 %img = imread('C:\Users\Hari\Documents\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Rectangle\rectangle (447).jpg');
 %img = imread('C:\Users\Hari\Documents\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Semi Circle\semi circle (69).jpg');
+%img = imread('C:\Users\Hari\Documents\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Star\star (349).jpg');
+%img = imread('C:\Users\Hari\Documents\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Cross\cross (112).jpg');
+img = imread('C:\Users\Hari\Documents\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw2\Quarter Circle\quarter circle (39).jpg');
 
+shapes = 'Quarter Circle';
 
-shapes = 'Triangle';
-
-numNewImages = 3001;
+numNewImages = 3597;
 %alphanumeric = true;
 
 switch shapes
@@ -24,7 +26,9 @@ switch shapes
     case 'Rectangle'
         files = dir('trainingImagesRaw/Rectangle/*.jpg');
     case 'Square'
-        files = dir('trainingImagesRaw/Square/*.jpg');        
+        files = dir('trainingImagesRaw/Square/*.jpg');  
+    case 'Star'
+        files = dir('trainingImagesRaw/Star/*.jpg');
 end
 
 startingIndex = length(files) + 1;
@@ -38,7 +42,7 @@ for i=1:numNewImages
     newImg = hsv2rgb(transformed);
     
     
-    %newImg = putAlpha(newImg);
+    newImg = putAlpha(newImg);
     
     newImg = imresize(newImg, [randi([50 300],1,1) NaN]);
     
@@ -53,7 +57,7 @@ for i=1:numNewImages
     
     
     newImg = backdrop(newImg);
-    newImg = imgaussfilt(newImg, randi([3 10],1,1));
+    newImg = imgaussfilt(newImg, randi([3 5],1,1));
     
 
     newImg = imgaussfilt(newImg, randi([1 3],1,1));
@@ -84,6 +88,8 @@ for i=1:numNewImages
             imwrite(newImg , char(strcat('trainingImagesRaw/Rectangle', '/',"rectangle (", string(startingIndex), ").jpg")));
         case 'Square'
             imwrite(newImg , char(strcat('trainingImagesRaw/Square', '/',"square (", string(startingIndex), ").jpg")));
+        case 'Star'
+            imwrite(newImg , char(strcat('trainingImagesRaw/Star', '/',"star (", string(startingIndex), ").jpg")));
     end
     
     startingIndex = startingIndex + 1;
