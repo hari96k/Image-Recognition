@@ -1,0 +1,9 @@
+cross
+quarter circle
+rectangle
+semi circle
+nas
+circle
+square
+star
+triangle

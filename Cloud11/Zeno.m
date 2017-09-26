@@ -1,77 +1,85 @@
-%% Real-time Car Identification Using Image Data
-% Image classification involves determining if an image contains some
-% specific object, feature, or activity. The goal of this example is to
-% provide a strategy to construct a classifier that can automatically
-% detect which car we are looking at using streaming images from a webcam
-% feed.
-% Copyright (c) 2015, MathWorks, Inc.
+%% IMAGE SELECTION
+imagedir = 'testImages/test19.jpg';
 
-clear
+img = imread(imagedir);
 
-load('workspace.mat')
-%% Load image data
-imset = imageSet('trainingImagesCooked','recursive');
+% Use mode 0 and writeEnable 1 for competition =)
 
-%% Pre-process Training Data: *Feature Extraction*
-% Requires: Computer Vision System Toolbox
+%% PRE-IMAGE PROCESSING
+% Standard for all images(no initial crop)
 
-% Create a bag-of-features from the Car image database
-bag = bagOfFeatures(imset,'VocabularySize',500, 'Gridstep', [10 10]);
-
-% Encode the images as new features
-imagefeatures = encode(bag,imset);
-
-%% Create a Table using the encoded features
-CarData         = array2table(imagefeatures);
-CarData.carType = getImageLabels(imset);
-
-%% Use the new features to train a model and assess its performance
-classificationLearner
-
-%% Test Trained Model
-
-close all;
-se2 = strel('square', 5);
-
-
-img = imread('testImages/test2.jpg');
-%img = imread('trainingImagesRaw/Semi Circles/semi543.jpg');
-
-imgGray = rgb2gray(img);
-
-
+% Best/Optimal Pre-Processing
+filter = .18;
 interEdges = coloredges(img);
 interEdges = interEdges / max(interEdges(:));
+                                                                                                                                                                                                                                                                                                                    
+% Special Crop to fix ffmpeg capture
+topCut = 10;
+bottomCut = 12;
+leftCut = 10;
+rightCut = 10;
+[height, width] = size(interEdges);
 
-BWimg = edge(imgGray,'canny', .2);
+ interEdges = imcrop(interEdges,[leftCut topCut width-leftCut-rightCut height-bottomCut-topCut] );
+ img = imcrop(img,[leftCut topCut width-leftCut-rightCut height-bottomCut-topCut] );
+imgGray = rgb2gray(img);
 
-blobs = regionprops(BWimg, 'BoundingBox');
+BWimgMask = edge(interEdges,'canny', .3);
+%BWimg = edge(imgGray,'canny', .4);
 
-blobAreas = regionprops(BWimg, 'area');       %Order the blobs by their area
-order = [blobAreas.Area];
-[~,idx]=sort(order, 'descend');
-blobs=blobs(idx);
+% Used to fill small holes/discontinuities
+se10 = strel('square', 10);
+se5 = strel('square', 5);
 
-boundary = blobs(1).BoundingBox;
-
-thisBlob = imcrop(imgGray, boundary + [-5 -5 10 10]);
-%thisBlob = imcrop(BWimg, boundary + [-5 -5 10 10]);
-% thisBlob = imdilate(thisBlob,se2);
-% thisBlob = imfill(thisBlob, 'Holes');
-% thisBlob = bwperim(thisBlob, 8);
-
-imwrite(thisBlob, 'temp.jpg');
-thisBlob = imread('temp.jpg');
+% thisImageThick is used to determine the boundary of a blob after dilating to fill holes (not displayed though)
+thisImageThick = imdilate(BWimgMask,se5);
 
 
-% Step 2: Extract Features
-imagefeatures = double(encode(bag,thisBlob));
+blobs = regionprops(thisImageThick, 'BoundingBox');
 
-% Step 3: Predict car using extracted features
-[imagepred, probabilities] = predict(trainedModel.ClassificationEnsemble,imagefeatures);
+z = 1;
+%% LOOPING THROUGH BLOBS
+while z <= length(blobs)
+    boundary = blobs(z).BoundingBox;
+    
+    % Crop it out of the original gray scale image.
+    % thisBlob = imcrop(BWimg, boundary + [-3 -3 6 6]);
+    thisBlob = imcrop(img, boundary + [-3 -3 6 6]);
+    
+    
+%     if numberOfWhite < 80
+%         z = z + 1;
+%         continue;
+%     end
+    
+%    [height, width] = size(thisBlob);
+    %imshow(thisBlob);
+%     thisBlob = bwareaopen(thisBlob, 50);
+    %thisBlob = imdilate(thisBlob,se2);
+        
+    z = z + 1;
+    shape = py.pyZeno.get_targets(imagedir, boundary);
+    shape = char(shape);
+    figure
+    imshow(thisBlob)
+    if(strcmp(shape, 'Unknown'))
+        close;
+    else
+        title(shape);
+    end
+    
+end
 
-thisShape = imcrop(img, boundary + [-5 -5 10 10]);
-imshow(thisShape);
-title(strcat('Prediction:',char(imagepred)));
+fprintf('Done!')
 
-%save workspace.mat
+
+% commandStr = strcat({'python label_image.py '}, {imagedir});
+    
+
+% [status, commandOut]  = system(char(commandStr));
+% if status == 0
+%     fprintf('Success!');
+% end
+
+%imshow(imagedir);
+%title(char(shape))

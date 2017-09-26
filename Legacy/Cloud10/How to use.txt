@@ -1,0 +1,31 @@
+How to Use:
+
+1) Open PerfectCell.m (this is the main)
+
+2) Pick your favorite image under image selection (or add a new one)
+
+3) Run !
+
+
+
+General Algorithm: 
+
+1) Pre-process Image (Canny edge detection)
+2) Use bounding box for a blob and extract arrays for x and y where the image is white (1)
+3) Traverse through the blob (from left to right) using neighborhood approximation (myNeighbor.m) until a max height(technically when y is the smallest) is reached
+4) If traversal is long enough, store the points of the start and end (this becomes the blue line that is used in approximations)
+5) Change direction of traversal and continue the same process
+6) Same as #4 (Note that the last neighbor found here should be at the rightmost side of the shape)
+7) Reset back to the leftmost side of the image, and go in the opposite direction of the first iteration (repeat 3,4,5,6)
+8) Use the resulting data (the linear approximations) to determine the shape (there are many more detailed internal conditions inside of discriminate.m)
+
+
+
+Accuracy:
+Good: Tringles, Rectangles, Squares, Circles
+Decent: Semicircles, Quarter Circles, Trapezoids
+Abysmal: Stars(Disabled), Crosses, QR Codes
+
+Ask if you have any questions =) !
+
+- Hari
