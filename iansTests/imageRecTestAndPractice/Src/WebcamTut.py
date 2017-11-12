@@ -4,7 +4,7 @@ import os
 import matplotlib as plt
 import datetime
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 path = 'C:/Users/Ian McDonald/Documents/GitHub/Image-Recognition/iansTests/imageRecTestAndPractice/images'
 fpath = path + '/frames'
 gfpath = path + '/gray_frames'
@@ -38,5 +38,6 @@ while True:
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+
 cap.release
 cv2.destroyAllWindows()

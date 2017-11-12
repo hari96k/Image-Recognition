@@ -3,41 +3,56 @@ import numpy
 import matplotlib as plt
 import os
 
-impath = 'C:/Users/Ian McDonald/Documents/GitHub/Image-Recognition/iansTests/imageRecTestAndPractice/images/'
-folder = input('Which folder do you wish to enter (currently frames, gray_frames, and pictures):  ')
-impath = impath + folder + '/';
+def BLOCKSIZE (): return 5
 
-file = input('picture name?:  ')
-file = file + '.jpg'
-
-image = input
-img = cv2.imread(os.path.join(impath, file), 0)
-
-width, height = img.shape
-print (img.shape)
-print (os.path.join(impath, file))
-
-ycounter = 0
-while (ycounter  <  height):
-    xcounter = 0
-    while (xcounter < width) :
-
-        if (img[xcounter,ycounter] > 180):
-                img[xcounter,ycounter] = 255
-        elif (img[xcounter,ycounter] <180 and img[xcounter,ycounter] > 60):
-            img[xcounter, ycounter] = 127
-
-        else:
-            img[xcounter, ycounter] = 0
-        xcounter += 1
-    ycounter += 1
+def promptPath():
+    impath = 'C:/Users/Ian McDonald/Documents/GitHub/Image-Recognition/iansTests/imageRecTestAndPractice/images/'
+    folder = input('Which folder do you wish to enter (currently frames, gray_frames, and pictures):  ')
+    impath = impath + folder + '/'
+    file = input('picture name?:  ')
+    file = file + '.jpg'
+    img = cv2.imread(os.path.join(impath, file), 0)
+    return img
 
 
-
-cv2.imshow('pic', img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
+def blackWhiteGray(img):
+    ##image = input
+    ##img = cv2.imread(os.path.join(impath, file), 0)
 
 
-##def compareBGR(bgr):
+    width, height = img.shape
+    print(img.shape)
+
+    ycounter = 0
+    while (ycounter < height):
+        xcounter = 0
+        while (xcounter < width):
+
+            if (img[xcounter, ycounter] > 180 and xcounter + BLOCKSIZE() < width):
+                img[xcounter:xcounter + BLOCKSIZE(), ycounter:ycounter + BLOCKSIZE()] = 255
+            elif (60<img[xcounter, ycounter] < 180 )and xcounter + BLOCKSIZE() < width:
+                img[xcounter:xcounter + BLOCKSIZE(), ycounter:ycounter + BLOCKSIZE()] = 160
+            elif (img[xcounter, ycounter] < 60 and xcounter + BLOCKSIZE() < width):
+                img[xcounter:xcounter + BLOCKSIZE(), ycounter:ycounter + BLOCKSIZE()] = 0
+            elif (img[xcounter, ycounter] > 180 and xcounter + BLOCKSIZE() ):
+                img[xcounter: width, ycounter:height] = 255
+            elif (60<img[xcounter, ycounter] < 180 )and xcounter + BLOCKSIZE() < width:
+                img[xcounter: width, ycounter:height] = 127
+            elif (img[xcounter, ycounter] < 60 and xcounter + BLOCKSIZE() < width):
+                img[xcounter: width, ycounter:height] = 0
+
+            xcounter += BLOCKSIZE()
+        ycounter += BLOCKSIZE()
+    return img
+
+
+
+##img = blackWhiteGray(img)
+
+
+##cv2.imshow('pic', img)
+##cv2.waitKey(0)
+##cv2.destroyAllWindows()
+
+##cap = cv2.videoCapture()
+
