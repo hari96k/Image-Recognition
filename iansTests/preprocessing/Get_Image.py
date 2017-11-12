@@ -17,6 +17,11 @@ cap = cv2.VideoCapture(0)
 
 #save the files as black and white every minute, exit on esc
 frame_num = 0
+
+#canny x y
+x = 50
+y = 100
+
 while(True):
     _, frame = cap.read()
 
@@ -26,8 +31,8 @@ while(True):
     y, m, d, h, min, sec, wd, yd, i = nowT
 
     if (omin + 1 <= min):
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        cv2.imwrite(os.path.join(file_path, FRAME_NAME + str(frame_num) + '.png'), gray)
+        edge = cv2.Canny(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY),x,y)
+        cv2.imwrite(os.path.join(file_path, FRAME_NAME + str(frame_num) + '.png'), edge)
 
         frame_num += 1
 
