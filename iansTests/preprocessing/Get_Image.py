@@ -5,7 +5,11 @@ import datetime
 
 #file path and frame name
 FRAME_NAME = 'frame_'
-file_path = input('file path:    ')
+exist = False
+while not exist:
+    file_path = input('file path:    ')
+    print("is path:    " + os.path.isdir(file_path))
+    exist = os.path.isdir(file_path)
 
 #get start time
 oNow = datetime.datetime.now()
