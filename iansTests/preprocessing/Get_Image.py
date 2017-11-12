@@ -5,7 +5,7 @@ import datetime
 
 #file path and frame name
 FRAME_NAME = 'frame_'
-file_path = 'C:/Users/Ian McDonald/Documents/GitHub/Image-Recognition/iansTests/imageRecTestAndPractice/images'
+file_path = input('file path:    ')
 
 #get start time
 oNow = datetime.datetime.now()
@@ -16,7 +16,7 @@ oy, om ,od, oh, omin, osec, owd, oyd , oi = oNowT
 cap = cv2.VideoCapture(0)
 
 #save the files as black and white every minute, exit on esc
-frameNum = 0
+frame_num = 0
 while(True):
     _, frame = cap.read()
 
@@ -27,9 +27,9 @@ while(True):
 
     if (omin + 1 <= min):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        cv2.imwrite(os.path.join(file_path, FRAME_NAME, gray))
+        cv2.imwrite(os.path.join(file_path, FRAME_NAME + str(frame_num) + '.png'), gray)
 
-        frameNum += 1
+        frame_num += 1
 
         oNow = datetime.datetime.now()
         oNowT = oNow.timetuple()
