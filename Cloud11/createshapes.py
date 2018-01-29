@@ -47,7 +47,7 @@ for i in range(0,num):
     draw.text(((x-textX)/2, (y-textY)/2),letter,(r,g,b),font=font)
     #random background from folder
     bleh = random.randint(1,30)
-    pic = "C:\\Users\\sober\\Documents\\Image-Recognition\\Cloud11\\backgrounds\\background" + str(bleh) + ".png"
+    pic = "C:/Users/Hari/Documents/UAV/Image-Recognition/Cloud11/backgrounds" + str(bleh) + ".png"
     background = Image.open(pic)
     maxwidth, maxheight = background.size
     resizeRatio = min(maxwidth/x, maxheight/y)*.75

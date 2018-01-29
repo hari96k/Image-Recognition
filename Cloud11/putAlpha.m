@@ -1,21 +1,30 @@
-function [ result ] = putAlpha( img )
+function [ result ] = putAlpha( img, boolrotate, alpha )
 %img = imread('C:\Users\harsha\Desktop\UAV\Image-Recognition\tf\tf_files\trainingImagesRaw\Square\square (5).jpg');
 img = im2uint8(img);
 
 files = dir('alphanumerics/*.jpg');
 n = randi([1 length(files)],1,1);
-alphanumeric = imread(char(strcat('alphanumerics/alphanumeric', " (", string(n),').jpg')));
+
+if nargin == 2
+    alphanumeric = imread(char(strcat('alphanumerics/alphanumeric', " (", string(n),').jpg')));
+else
+    alphanumeric = imread(char(strcat('alphanumerics/alphanumeric', " (", string(double(alpha) - 64),').jpg')));
+end
 
 dim = size(alphanumeric);
 new_dim = (randi([0 0],1,1)/100) * [max(dim(1), dim(2)) max(dim(1), dim(2))];
 alphanumeric = padarray(alphanumeric, ceil(new_dim), 255);
 
 angle = randi([1 359],1,1);
-darkImg = imrotate(alphanumeric, angle);
 
-%Sets border to be white
-tempImg = ~imrotate(true(size(alphanumeric)), angle);
-darkImg(tempImg&~imclearborder(tempImg)) = 255;
+if nargin > 1 && boolrotate
+    darkImg = imrotate(alphanumeric, angle);
+    %Sets border to be white
+    tempImg = ~imrotate(true(size(alphanumeric)), angle);
+    darkImg(tempImg&~imclearborder(tempImg)) = 255;
+else
+    darkImg = alphanumeric;
+end
 
 alphanumeric = darkImg;
 
