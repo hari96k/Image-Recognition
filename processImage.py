@@ -13,7 +13,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 
-color_img = Image.open('/home/hari/Dropbox/Testing_Images/test0.jpg')
+color_img = Image.open('C:/Users/Hari/Documents/UAV/Image-Recognition/Cloud11/testImages/flighttest2.jpg')
 plt.imshow(color_img)
 plt.title('Original')
 plt.show(block=False)
@@ -32,9 +32,16 @@ warnings.filterwarnings("ignore")
 
 # Initializations for tensorflow
 # Loads label file, strips off carriage return
+
+# For shape classification
+# label_lines = [line.rstrip() for line in tf.gfile.GFile("Cloud11/retrained_labels.txt")]
+
 label_lines = [line.rstrip() for line in tf.gfile.GFile("Cloud11/retrained_labels.txt")]
 
 # Unpersists graph from file
+
+# For shape classification
+#with tf.gfile.FastGFile("Cloud11/retrained_graph.pb", 'rb') as f:
 with tf.gfile.FastGFile("Cloud11/retrained_graph.pb", 'rb') as f:
     graph_def = tf.GraphDef()
     graph_def.ParseFromString(f.read())
@@ -45,52 +52,17 @@ sess = tf.Session()
 # Feed the image_data as input to the graph and get first prediction
 softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')
 
-
-# class BlobThread(threading.Thread):
-#     data = ''
-#     directory = ''
+# image_array = color_img.convert('RGB')
+# predictions = sess.run(softmax_tensor, {'DecodeJpeg:0': image_array})
 #
-#     def __init__(self, m, di):
-#         threading.Thread.__init__(self)
-#         self.data = m
-#         self.directory = di
+# top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
 #
-#     def run(self):
-#         m = str(data, "utf-8")
-#         m_split = m.split(' ')
-#         print("Matlab sent : " + m)
-#         command = m_split[0]
-#         print("Command received: " + command)
-#         if command == 'blob':
-#             filename = m_split[1]
-#             # image_path = directory + filename
-#             print("Reading from: " + str(self.directory) + filename)
-#             img = Image.open(self.directory + filename)
-#             cropped_img = img.crop((float(m_split[2]), float(m_split[3]),
-#                                     float(m_split[2]) + float(m_split[4]),
-#                                     float(m_split[3]) + float(m_split[5])))
-#             image_array = cropped_img.convert('RGB')
-#             predictions = sess.run(softmax_tensor, {'DecodeJpeg:0': image_array})
+# alpha = label_lines[top_k[0]]
 #
-#             top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
+# for i in range(0, len(label_lines)):
+# 	print (label_lines[top_k[i]])
 #
-#             shape = label_lines[top_k[0]]
-#             confidence = predictions[0][top_k[0]]
-#
-#             # text_file = open("shape_output.txt", "w")
-#             result = ("%s with %s confidence" % (shape, confidence)).title()
-#             print('\n\n' + result + '\n' + str(m_split) + '\n')
-#             if confidence > .50 and shape != 'nas':
-#                 cropped_img.save('C:\\Users\\hari\\Documents\\UAV\\Image-Recognition\\tf\\tf_files\\outputs\\' + str(
-#                     shape) + '_' + str(confidence) + '.jpg')
-#
-#         # clientsock.send("You sent me : "+ str(data))
-#         else:
-#             pass
-#
-#         print("Blob processed...")
-#         print("Active threads: " + str(threading.active_count()))
-
+# exit()
 
 def get_colour_name(requested_colour):
     min_colours = {}
@@ -101,14 +73,6 @@ def get_colour_name(requested_colour):
         bd = (b_c - requested_colour[2]) ** 2
         min_colours[(rd + gd + bd)] = name
     return min_colours[min(min_colours.keys())]
-
-
-# def get_colour_name(requested_colour):
-#     try:
-#         closest_name = webcolors.rgb_to_name(requested_colour)
-#     except ValueError:
-#         closest_name = closest_colour(requested_colour)
-#     return str(closest_name)
 
 padding = 20
 
@@ -165,21 +129,20 @@ def process_blob(x, y, w, h):
 
         # byte_array = io.BytesIO()
         # cropped_img.save(byte_array, format='PNG')
-        # byte_array = byte_array.getvalue()
-        # encoded_img = base64.b64encode(byte_array).decode('utf-8')
-
-        # jsonString = json.dumps(dictionary)
-        # jsonString = "{\"data\":\"" + str(encoded_img) + "\",\"type\":\"standard\",\"lat\":" + "1" + ",\"lon\":" + "1" + ",\"orientation\":" + "\"N\"" + ",\"shape\":\"" + shape + "\",\"background_color\":\"" + primary + "\",\"alphanumeric\":\"" + char + "\",\"alphanumeric_color\":\"" + secondary + "\",\"autonomous\":true}"
-        # print(jsonString)
-        # output = json.loads(jsonString)
-
-        # patchOut = json.dumps(lol)
 
 
 # cv2.imshow('Original', img)
 
 cv_img = cv2.cvtColor(numpy.array(color_img), cv2.COLOR_RGB2BGR)
-edges = cv2.Canny(cv_img, 50, 200)
+edges = cv2.Canny(cv_img, 200, 500)
+
+
+plt.imshow(edges)
+plt.title('Edges')
+plt.show(block=True)
+
+#
+# exit()
 
 ret, thresh = cv2.threshold(edges, 127, 255, 0)
 image, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)

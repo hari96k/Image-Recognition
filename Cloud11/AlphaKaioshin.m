@@ -46,7 +46,7 @@ for j=3:28
 
         newImg = putAlpha(newImg, false, alphadirs(j).name);
 
-        newImg = imresize(newImg, [randi([50 300],1,1) NaN]);
+        newImg = imresize(newImg, [randi([50 150],1,1) NaN]);
 
         newImg = backdrop(newImg);
         newImg = imgaussfilt(newImg, randi([3 5],1,1));

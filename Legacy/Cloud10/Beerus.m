@@ -77,7 +77,7 @@ noiseLVL = 1;
 
 blobs = regionprops(thisImageThick, 'BoundingBox');
 
-while length(blobs) > 10;
+while length(blobs) > 10
     thisImageThick = bwareaopen(thisImageThick, 200*noiseLVL);
     noiseLVL = noiseLVL + 1;
     blobs = regionprops(thisImageThick, 'BoundingBox');
